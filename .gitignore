@@ -10,3 +10,4 @@ dist/
 build/
 setup_git.py
 fix_ingest.py
+Render*.pdf
