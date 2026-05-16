@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+venv/
+.env
+data/chroma/
+chroma/
+.DS_Store
+*.egg-info/
+dist/
+build/
+setup_git.py
+fix_ingest.py
