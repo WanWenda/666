@@ -1,0 +1,12 @@
+services:
+  ncu-rag-tutor-test:
+    build: 
+      context: .
+    container_name: ncu-rag-tutor-test
+    restart: unless-stopped
+    env_file:
+      - .env.test
+    ports:
+      - "8009:8001"
+    volumes:
+      - ./data_test:/app/data
