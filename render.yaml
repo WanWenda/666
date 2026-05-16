@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: ncu-rag-tutor
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port     healthCheckPath: /health
+    envVars:
+      - key: LLM_API_BASE
+        value: https://api.siliconflow.cn/v1
+      - key: LLM_EMBEDDING_API_BASE
+        value: https://api.siliconflow.cn/v1
+      - key: RERANKER_ENDPOINT
+        value: https://api.siliconflow.cn/v1/rerank
+      - key: VLM_API_BASE
+        value: https://api.siliconflow.cn/v1
+      - key: LLM_MODEL_NAME
+        value: Qwen/Qwen3.5-35B-A3B
+      - key: LLM_EMBEDDING_MODEL_NAME
+        value: Qwen/Qwen3-Embedding-8B
+      - key: RERANKER_MODEL_NAME
+        value: Qwen/Qwen3-Reranker-8B
+      - key: VLM_MODEL_NAME
+        value: Qwen/Qwen3-VL-8B-Instruct
+    disk:
+      name: chroma-data
+      mountPath: /app/data/chroma
+      sizeGB: 1
