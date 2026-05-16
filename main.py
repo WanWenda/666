@@ -6,6 +6,7 @@ from app.api.webhook import router as webhook_router
 from app.api.admin import router as admin_router
 from app.core.config import settings
 import uvicorn
+import os
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -30,13 +31,20 @@ from fastapi.responses import JSONResponse
 # 🛡️ 增加网关来源拦截鉴权，防止家里 8.6 直连公网被扫刷
 @app.middleware("http")
 async def gateway_security_guard(request: Request, call_next):
+    # 如果在 Render 部署，放行所有请求（Render 自带 HTTPS + 域名保护）
+    if os.environ.get("RENDER", "").lower() == "true":
+        return await call_next(request)
+    # 如果在 Render 部署，放行所有请求（Render 自带 HTTPS + 域名保护）
+    if os.environ.get("RENDER", "").lower() == "true":
+        return await call_next(request)
+
     # 放行本地发起的绝对安全请求、Docker 虚拟网桥（172.*）、以及家网其他终端
     client_ip = request.client.host if request.client.host else ""
     if client_ip in ["127.0.0.1", "localhost"] or client_ip.startswith("172.") or (client_ip.startswith("192.168.8.") and client_ip != "192.168.8.88"):
         return await call_next(request)
 
     path = request.url.path
-    
+
     # 放行企业微信回调、健康检查和管理面板 UI 资源
     if path.startswith(settings.API_V1_STR + "/wecom") or path == "/health" or path.startswith("/admin") or path.endswith(".html"):
         return await call_next(request)
@@ -49,7 +57,7 @@ async def gateway_security_guard(request: Request, call_next):
     # 2. 既没有内网身份，也没有邮戳，直接铁壁阻断！无商量余地。
     print(f"🚨 [骇客拦截] 拒绝非法公网 / 网关越权访问 (IP: {client_ip})")
     return JSONResponse(
-        status_code=403, 
+        status_code=403,
         content={"detail": "Access Denied: Internal AI Engine Protected. Direct external access is forbidden."}
     )
 
@@ -60,7 +68,6 @@ app.include_router(webhook_router, prefix=settings.API_V1_STR + "/wecom")
 app.include_router(admin_router, prefix=settings.API_V1_STR + "/admin")
 
 # 暴露单页 Admin 应用的静态主页
-import os
 static_dir = os.path.join(os.path.dirname(__file__), "app", "static")
 os.makedirs(static_dir, exist_ok=True)
 app.mount("/admin", StaticFiles(directory=static_dir, html=True), name="admin_static")
