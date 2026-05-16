@@ -5,7 +5,8 @@ services:
     region: singapore
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port     healthCheckPath: /health
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 8001
+    healthCheckPath: /health
     envVars:
       - key: LLM_API_BASE
         value: https://api.siliconflow.cn/v1
