@@ -24,7 +24,3 @@ services:
         value: Qwen/Qwen3-Reranker-8B
       - key: VLM_MODEL_NAME
         value: Qwen/Qwen3-VL-8B-Instruct
-    disk:
-      name: chroma-data
-      mountPath: /app/data/chroma
-      sizeGB: 1
